@@ -6,13 +6,13 @@ export async function GET() {
     const data = await res.json();
 
     // Extract versions and format them
-    const versions = data.map((v: any) => ({
+    const versions = data.map((v: { lts: string; version: string; }) => ({
       version: v.lts ? `${v.version.replace("v", "")} (LTS)` : v.version.replace("v", ""),
       codename: v.lts || "", // Get LTS codename or empty for non-LTS versions
     }));
 
     return NextResponse.json(versions);
-  } catch (error) {
+  } catch {
     return NextResponse.json({ error: "Failed to fetch Node versions" }, { status: 500 });
   }
 }
