@@ -11,7 +11,7 @@ export async function GET() {
       .sort((a, b) => b.localeCompare(a, undefined, { numeric: true })); // Sort descending
 
     return NextResponse.json(versions);
-  } catch (error) {
+  } catch {
     return NextResponse.json({ error: "Failed to fetch npm versions" }, { status: 500 });
   }
 }
