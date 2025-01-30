@@ -9,44 +9,27 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Progress } from "@/components/ui/progress";
 import { Dialog, DialogContent, DialogFooter, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 
-type NodeVersion = { version: string; codename?: string };
-type NpmVersion = string;
-
 export default function HomePage() {
   const [packageJson, setPackageJson] = useState("");
-  const [nodeVersions, setNodeVersions] = useState<NodeVersion[]>([]);
-  const [npmVersions, setNpmVersions] = useState<NpmVersion[]>([]);
+  const [nodeVersions, setNodeVersions] = useState<string[]>([]);
+  const [npmVersions, setNpmVersions] = useState<string[]>([]);
   const [nodeVersion, setNodeVersion] = useState("");
   const [npmVersion, setNpmVersion] = useState("");
   const [progress, setProgress] = useState(0);
   const [isChecking, setIsChecking] = useState(false);
   const [showResetDialog, setShowResetDialog] = useState(false);
 
-  // ✅ Fetch Node.js and npm versions correctly
+  // Fetch Node.js and npm versions
   useEffect(() => {
     fetch("/api/node-versions")
       .then((res) => res.json())
-      .then((data: NodeVersion[]) => {
-        console.log("Node Versions:", data);
-        if (Array.isArray(data) && data.length > 0) {
-          setNodeVersions(data);
-        }
-      })
-      .catch((error) => {
-        console.error("Error fetching Node versions:", error);
-      });
+      .then((data) => setNodeVersions(data.map((v: any) => v.version)))
+      .catch(() => setNodeVersions([]));
 
     fetch("/api/npm-versions")
       .then((res) => res.json())
-      .then((data: NpmVersion[]) => {
-        console.log("NPM Versions:", data);
-        if (Array.isArray(data) && data.length > 0) {
-          setNpmVersions(data);
-        }
-      })
-      .catch((error) => {
-        console.error("Error fetching NPM versions:", error);
-      });
+      .then((data) => setNpmVersions(data)) // Show all available npm versions
+      .catch(() => setNpmVersions([]));
   }, []);
 
   // Simulate Dependency Checking Progress
@@ -74,7 +57,7 @@ export default function HomePage() {
   };
 
   return (
-    <div className="container mx-auto p-6 grid grid-cols-1 md:grid-cols-2 gap-6 h-screen overflow-auto">
+    <div className="container mx-auto p-6 grid grid-cols-1 md:grid-cols-2 gap-6 h-screen">
       {/* Left Column - Inputs */}
       <Card>
         <CardHeader>
@@ -82,48 +65,40 @@ export default function HomePage() {
         </CardHeader>
         <CardContent>
           {/* File Upload */}
-          <Input type="file" accept=".json" className="mb-4" />
+          <Input type="file" accept=".json" />
 
           {/* Node.js & npm Version Select */}
-          <div className="flex gap-4">
-            <Select onValueChange={setNodeVersion} value={nodeVersion}>
+          <div className="mt-4 flex gap-4">
+            <Select onValueChange={setNodeVersion} defaultValue={nodeVersion}>
               <SelectTrigger>
                 <SelectValue placeholder="Select Node.js Version" />
               </SelectTrigger>
               <SelectContent>
-                {nodeVersions.length > 0 ? (
-                  nodeVersions.map(({ version, codename }) => (
-                    <SelectItem key={version} value={version}>
-                      {version} {codename ? `(${codename})` : ""}
-                    </SelectItem>
-                  ))
-                ) : (
-                  <SelectItem disabled value="no-versions">No versions available</SelectItem>
-                )}
+                {nodeVersions.map((version) => (
+                  <SelectItem key={version} value={version}>
+                    {version}
+                  </SelectItem>
+                ))}
               </SelectContent>
             </Select>
 
-            <Select onValueChange={setNpmVersion} value={npmVersion}>
+            <Select onValueChange={setNpmVersion} defaultValue={npmVersion}>
               <SelectTrigger>
                 <SelectValue placeholder="Select npm Version" />
               </SelectTrigger>
               <SelectContent>
-                {npmVersions.length > 0 ? (
-                  npmVersions.map((version) => (
-                    <SelectItem key={version} value={version}>
-                      {version}
-                    </SelectItem>
-                  ))
-                ) : (
-                  <SelectItem disabled value="no-versions">No versions available</SelectItem>
-                )}
+                {npmVersions.map((version) => (
+                  <SelectItem key={version} value={version}>
+                    {version}
+                  </SelectItem>
+                ))}
               </SelectContent>
             </Select>
           </div>
 
           {/* Paste package.json */}
           <Textarea
-            className="mt-4 h-80"
+            className="mt-4 h-96"
             placeholder="Paste your package.json here..."
             value={packageJson}
             onChange={(e) => setPackageJson(e.target.value)}
