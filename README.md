@@ -54,7 +54,7 @@ npm run dev  # Starts Next.js frontend
 - **Backend:** Use **Cloudflare Workers** or **Vercel Functions**
 
 ## 📜 License
-MIT License (or specify your preferred license)
+MIT License
 
 ## 💡 Contributing
 1. Fork the repo & clone it.
